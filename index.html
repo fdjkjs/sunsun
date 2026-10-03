@@ -11,7 +11,7 @@ body{margin:0;background:var(--bg);color:var(--text);font-family:"Yu Gothic UI",
 .wrap{max-width:760px;margin:0 auto;padding:24px 16px 40px}
 h1{font-size:24px;margin:0 0 6px;font-weight:800}.lead{margin:0 0 18px;color:var(--muted);font-size:14px}
 .card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:18px;margin-top:14px;box-shadow:0 2px 12px rgba(0,0,0,.04)}
-.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.full{grid-column:1/-1}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.grid>div{min-width:0}.full{grid-column:1/-1}
 label{display:block;font-size:15px;font-weight:700;margin-bottom:7px}
 .section-title{display:flex;align-items:center;gap:8px;font-size:20px;font-weight:800;margin:0 0 16px}
 .section-title::before{content:"";width:5px;height:20px;border-radius:999px;background:#111827}
@@ -24,13 +24,14 @@ label{display:block;font-size:15px;font-weight:700;margin-bottom:7px}
 .unit-input .unit{position:absolute;right:14px;top:50%;transform:translateY(-50%);font-size:15px;font-weight:700;color:var(--muted);pointer-events:none}
 .input-hint{font-size:12px;color:var(--muted);margin-top:6px}
 input,textarea{width:100%;border:1px solid #d1d5db;border-radius:10px;padding:11px 12px;font:inherit;background:#fff;outline:none}
+input[type="date"]{display:block;width:100%;max-width:100%;min-width:0;box-sizing:border-box;-webkit-appearance:auto;appearance:auto}
 input:focus,textarea:focus{border-color:#111827;box-shadow:0 0 0 3px rgba(17,24,39,.08)}
 
 .total{display:flex;justify-content:space-between;align-items:center;margin-top:12px;padding:13px 14px;background:#f8fafc;border-radius:10px;font-family:inherit}.total span{font-family:inherit;font-size:16px;font-weight:700}.total .v{font-family:inherit;font-size:22px;font-weight:800}
-.actions{display:flex;gap:10px;margin-top:16px;flex-wrap:wrap}button{border:0;border-radius:10px;padding:11px 15px;font:inherit;font-weight:800;cursor:pointer}.primary{background:var(--accent);color:#fff}.secondary{background:#eef0f2;color:#111827}.copied{opacity:.7}
+.actions{display:flex;gap:10px;margin-top:16px;flex-wrap:wrap}button{border:0;border-radius:10px;padding:11px 15px;font:inherit;font-weight:800;cursor:pointer}.primary{background:var(--accent);color:#fff}.secondary{background:#eef0f2;color:#111827}.copied{opacity:.7}.copy-message{display:none;margin-top:12px;padding:12px 14px;background:#f8fafc;border:1px solid var(--line);border-radius:10px;text-align:center;font-weight:700;font-size:14px}.copy-message.show{display:block}
 .preview{white-space:pre-wrap;line-height:1.75;background:#fafafa;border:1px dashed #d1d5db;border-radius:10px;padding:14px;font-family:inherit;font-size:14px}
 .small{font-size:12px;color:var(--muted);margin-top:6px}.calculation-note .formula{padding:9px 12px;margin-top:8px;background:#f8fafc;border-radius:10px;font-size:13px;line-height:1.6}.calc-grid{margin-top:12px}.calc{display:flex;justify-content:space-between;align-items:center;padding:12px 14px;background:#f8fafc;border-radius:10px;font-size:15px;font-weight:700}.calc strong{font-size:19px}
-@media(max-width:600px){.grid,.input-group{grid-template-columns:1fr}.full{grid-column:auto}.input-block input{min-height:54px;font-size:19px}.section-title{font-size:18px}.total span{font-size:15px}.total .v{font-size:21px}}
+@media(max-width:600px){.grid,.input-group{grid-template-columns:1fr}.full{grid-column:auto}.input-block input{min-height:54px;font-size:19px}.grid input[type="date"]{width:100%;max-width:100%;min-height:54px;font-size:16px}.section-title{font-size:18px}.total span{font-size:15px}.total .v{font-size:21px}}
 </style>
 </head>
 <body>
@@ -95,6 +96,7 @@ input:focus,textarea:focus{border-color:#111827;box-shadow:0 0 0 3px rgba(17,24,
       <button class="primary" id="copy">日報をコピー</button>
       <button class="secondary" id="clear">入力をクリア</button>
     </div>
+    <div class="copy-message" id="copyMessage">本日も一日、遅くまでお疲れ様でございました!!</div>
   </div>
 
   <div class="card">
@@ -168,9 +170,17 @@ function setToday(){
 }
 ids.forEach(id=>$(id).addEventListener('input',build));
 $('copy').addEventListener('click',async()=>{
-  try{await navigator.clipboard.writeText(build());$('copy').textContent='コピーしました';setTimeout(()=>$('copy').textContent='日報をコピー',1200)}
-  catch{alert('コピーに失敗しました。プレビューを選択してコピーしてください。')}});
-$('clear').addEventListener('click',()=>{ids.filter(id=>id!=='date').forEach(id=>$(id).value='');setToday();build()});
+  try{
+    await navigator.clipboard.writeText(build());
+    $('copy').textContent='コピーしました';
+    $('copyMessage').classList.add('show');
+    setTimeout(()=>$('copy').textContent='日報をコピー',1200);
+  }
+  catch{
+    alert('コピーに失敗しました。プレビューを選択してコピーしてください。');
+  }
+});
+$('clear').addEventListener('click',()=>{ids.filter(id=>id!=='date').forEach(id=>$(id).value='');$('copyMessage').classList.remove('show');setToday();build()});
 setToday();build();
 </script>
 </body>
