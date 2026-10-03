@@ -66,10 +66,11 @@ input:focus,textarea:focus{border-color:#111827;box-shadow:0 0 0 3px rgba(17,24,
   <div class="card input-card">
     <h2 class="section-title">原価計算</h2>
     <div class="input-group">
-      <div class="input-block"><label for="foodSales">フード売上</label><div class="unit-input"><input id="foodSales" type="text" inputmode="numeric" pattern="[0-9]*" placeholder="0" aria-label="フード売上"><span class="unit">円</span></div></div>
-      <div class="input-block"><label for="drinkSales">ドリンク売上</label><div class="unit-input"><input id="drinkSales" type="text" inputmode="numeric" pattern="[0-9]*" placeholder="0" aria-label="ドリンク売上"><span class="unit">円</span></div></div>
-      <div class="input-block"><label for="foodCost">フード原価</label><div class="unit-input"><input id="foodCost" type="text" inputmode="numeric" pattern="[0-9]*" placeholder="0" aria-label="フード原価"><span class="unit">円</span></div></div>
-      <div class="input-block"><label for="drinkCost">ドリンク原価</label><div class="unit-input"><input id="drinkCost" type="text" inputmode="numeric" pattern="[0-9]*" placeholder="0" aria-label="ドリンク原価"><span class="unit">円</span></div></div>
+      <div class="input-block"><label for="foodSales">フード売上高</label><div class="unit-input"><input id="foodSales" type="text" inputmode="numeric" pattern="[0-9]*" placeholder="0" aria-label="フード売上"><span class="unit">円</span></div></div>
+      <div class="input-block"><label for="drinkSales">ドリンク売上高
+      </label><div class="unit-input"><input id="drinkSales" type="text" inputmode="numeric" pattern="[0-9]*" placeholder="0" aria-label="ドリンク売上"><span class="unit">円</span></div></div>
+      <div class="input-block"><label for="foodCost">フード仕入れ額</label><div class="unit-input"><input id="foodCost" type="text" inputmode="numeric" pattern="[0-9]*" placeholder="0" aria-label="フード原価"><span class="unit">円</span></div></div>
+      <div class="input-block"><label for="drinkCost">ドリンク仕入れ額</label><div class="unit-input"><input id="drinkCost" type="text" inputmode="numeric" pattern="[0-9]*" placeholder="0" aria-label="ドリンク原価"><span class="unit">円</span></div></div>
     </div>
     <div class="input-hint">フード・ドリンクそれぞれの売上と原価を入力すると、原価率を自動計算します。</div>
     <div class="grid calc-grid">
@@ -80,8 +81,8 @@ input:focus,textarea:focus{border-color:#111827;box-shadow:0 0 0 3px rgba(17,24,
 
   <div class="card input-card">
     <h2 class="section-title">人件費計算</h2>
-    <div class="input-block"><label for="laborCost">人件費</label><div class="unit-input"><input id="laborCost" type="text" inputmode="numeric" pattern="[0-9]*" placeholder="0" aria-label="人件費"><span class="unit">円</span></div></div>
-    <div class="input-hint">モーニング・ランチ・ディナーの売上合計をもとに、人件費率を自動計算します。</div>
+    <div class="input-block"><label for="laborRateInput">人件費率</label><div class="unit-input"><input id="laborRateInput" type="text" inputmode="decimal" placeholder="0.00" aria-label="人件費率"><span class="unit">%</span></div></div>
+    <div class="input-hint">人件費率を直接入力してください。</div>
     <div class="calc-grid">
       <div class="calc"><span>人件費率</span><strong id="laborCostRate">--%</strong></div>
     </div>
@@ -103,19 +104,20 @@ input:focus,textarea:focus{border-color:#111827;box-shadow:0 0 0 3px rgba(17,24,
 
   <div class="card calculation-note">
     <label>計算方法</label>
-    <div class="formula">原価率（ドリンク） ＝ ドリンク原価 ÷ ドリンク売上 × 100</div>
-    <div class="formula">原価率（フード） ＝ フード原価 ÷ フード売上 × 100</div>
-    <div class="formula">人件費率 ＝ 人件費 ÷ 売上合計（モーニング＋ランチ＋ディナー） × 100</div>
-    <div class="small">売上・原価・人件費が未入力または0円の場合、該当する率は「--%」で表示されます。</div>
+    <div class="formula">原価率（ドリンク） ＝ ドリンク仕入れ額 ÷ ドリンク売上高 × 100</div>
+    <div class="formula">原価率（フード） ＝ フード仕入れ額 ÷ フード売上高 × 100</div>
+    <div class="formula">人件費率 ＝ 人件費 ÷ 売上合計（モーニング＋ランチ＋ディナー） × 100（入力した人件費率をそのまま使用）</div>
+    <div class="small">売上・原価が未入力または0円の場合、該当する原価率は「--%」で表示されます。人件費率が未入力の場合は「--%」で表示されます。</div>
   </div>
 </div>
 <script>
 const $=id=>document.getElementById(id);
-const ids=['date','reviews','morning','lunch','dinner','foodSales','drinkSales','foodCost','drinkCost','laborCost','closing'];
-['reviews','morning','lunch','dinner','foodSales','drinkSales','foodCost','drinkCost','laborCost'].forEach(id=>$(id).addEventListener('input',e=>{e.target.value=e.target.value.replace(/[^0-9]/g,'')}));
+const ids=['date','reviews','morning','lunch','dinner','foodSales','drinkSales','foodCost','drinkCost','laborRateInput','closing'];
+['reviews','morning','lunch','dinner','foodSales','drinkSales','foodCost','drinkCost'].forEach(id=>$(id).addEventListener('input',e=>{e.target.value=e.target.value.replace(/[^0-9]/g,'')}));
+$('laborRateInput').addEventListener('input',e=>{e.target.value=e.target.value.replace(/[^0-9.]/g,'');const parts=e.target.value.split('.');if(parts.length>2)e.target.value=parts[0]+'.'+parts.slice(1).join('');});
 function pad2(n){return String(n).padStart(2,'0')}
 function yen(v){return '¥'+Math.round(Number(v||0)).toLocaleString('ja-JP')}
-function rate(cost,sales){const c=String(cost).trim(),s=String(sales).trim();if(c===''||s===''||Number(c)<=0||Number(s)<=0)return '--%';return (Number(c)/Number(s)*100).toFixed(1)+'%'}
+function rate(cost,sales){const c=String(cost).trim(),s=String(sales).trim();if(c===''||s===''||Number(c)<=0||Number(s)<=0)return '--%';return (Number(c)/Number(s)*100).toFixed(2)+'%'}
 function weekday(dateStr){
   if(!dateStr)return '〇';
   const d=new Date(dateStr+'T00:00:00');
@@ -126,11 +128,12 @@ function build(){
   const reviews=$('reviews').value===''?'0':Number($('reviews').value).toLocaleString('ja-JP');
   const m=Number($('morning').value||0), l=Number($('lunch').value||0), d=Number($('dinner').value||0);
   const foodSales=Number($('foodSales').value||0), drinkSales=Number($('drinkSales').value||0);
-  const foodCost=Number($('foodCost').value||0), drinkCost=Number($('drinkCost').value||0), laborCost=Number($('laborCost').value||0);
+  const foodCost=Number($('foodCost').value||0), drinkCost=Number($('drinkCost').value||0);
   const total=m+l+d;
   const drinkRate=rate(drinkCost,$('drinkSales').value);
   const foodRate=rate(foodCost,$('foodSales').value);
-  const laborRate=total>0 && String($('laborCost').value).trim()!=='' && laborCost>0 ? (laborCost/total*100).toFixed(1)+'%' : '--%';
+  const laborRateInput=String($('laborRateInput').value).trim();
+  const laborRate=laborRateInput!=='' && Number.isFinite(Number(laborRateInput)) ? Number(laborRateInput).toFixed(2)+'%' : '--%';
   $('total').textContent=yen(total);
   $('drinkCostRate').textContent=drinkRate;
   $('foodCostRate').textContent=foodRate;
