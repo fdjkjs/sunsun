@@ -49,7 +49,10 @@ input:focus,textarea:focus{border-color:#111827;box-shadow:0 0 0 3px rgba(17,24,
       <div class="input-block">
         <label for="reviews">口コミ件数（現状）</label>
         <div class="unit-input"><input id="reviews" type="text" inputmode="numeric" pattern="[0-9]*" placeholder="0" aria-label="口コミ件数（現状）"><span class="unit">件</span></div>
-        <div class="small">目標は2,000件で固定</div>
+        <div class="actions" style="margin-top:8px">
+          <button class="secondary" type="button" id="googleReviews">Google口コミを確認</button>
+        </div>
+        <div class="small">Googleマップで現在の口コミ件数を確認し、この欄に入力してください。</div>
       </div>
     </div>
   </div>
@@ -169,6 +172,10 @@ function setToday(){
   $('date').value=todayStr();
 }
 ids.forEach(id=>$(id).addEventListener('input',build));
+$('googleReviews').addEventListener('click',()=>{
+  const url='https://www.google.co.jp/maps/place/MORETHAN+%E5%BA%83%E5%B3%B6/@34.3894008,132.452656,17z/data=!3m1!5s0x355aa213aa089893:0x291233f431616185!4m8!3m7!1s0x355aa3519aa7ae5d:0xa12e2c140df7d69a!8m2!3d34.3894008!4d132.4552309!9m1!1b1!16s%2Fg%2F11mvyd3m6h?entry=ttu&g_ep=EgoyMDI2MDkzMC4wIKXMDSoASAFQAw%3D%3D';
+  window.open(url,'_blank','noopener,noreferrer');
+});
 $('copy').addEventListener('click',async()=>{
   try{
     await navigator.clipboard.writeText(build());
