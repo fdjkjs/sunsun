@@ -52,7 +52,7 @@ input:focus,textarea:focus{border-color:#111827;box-shadow:0 0 0 3px rgba(17,24,
         <div class="actions" style="margin-top:8px">
           <button class="secondary" type="button" id="googleReviews">Google口コミを確認</button>
         </div>
-        <div class="small">Googleマップで現在の口コミ件数を確認し、この欄に入力してください。</div>
+        <div class="small">Googleマップで現在の口コミ件数を確認し、この欄に入力してください。スマホではGoogleマップアプリを優先して開きます。</div>
       </div>
     </div>
   </div>
@@ -173,8 +173,43 @@ function setToday(){
 }
 ids.forEach(id=>$(id).addEventListener('input',build));
 $('googleReviews').addEventListener('click',()=>{
-  const url='https://www.google.co.jp/maps/place/MORETHAN+%E5%BA%83%E5%B3%B6/@34.3894008,132.452656,17z/data=!3m1!5s0x355aa213aa089893:0x291233f431616185!4m8!3m7!1s0x355aa3519aa7ae5d:0xa12e2c140df7d69a!8m2!3d34.3894008!4d132.4552309!9m1!1b1!16s%2Fg%2F11mvyd3m6h?entry=ttu&g_ep=EgoyMDI2MDkzMC4wIKXMDSoASAFQAw%3D%3D';
-  window.open(url,'_blank','noopener,noreferrer');
+  const query='MORETHAN 広島';
+  const browserUrl='https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(query);
+  const ua=navigator.userAgent||'';
+  const isAndroid=/Android/i.test(ua);
+  const isIOS=/iPhone|iPad|iPod/i.test(ua);
+
+  let appUrl='';
+  if(isAndroid){
+    appUrl='intent://maps.google.com/?q='+encodeURIComponent(query)+'#Intent;scheme=https;package=com.google.android.apps.maps;end';
+  }else if(isIOS){
+    appUrl='comgooglemaps://?q='+encodeURIComponent(query);
+  }
+
+  // PCは通常のGoogleマップ、スマホはアプリを優先。
+  if(!appUrl){
+    window.open(browserUrl,'_blank','noopener,noreferrer');
+    return;
+  }
+
+  let fallbackTimer;
+  let appOpened=false;
+  const cancelFallback=()=>{
+    appOpened=true;
+    if(fallbackTimer) clearTimeout(fallbackTimer);
+  };
+
+  document.addEventListener('visibilitychange',cancelFallback,{once:true});
+  window.addEventListener('pagehide',cancelFallback,{once:true});
+
+  window.location.href=appUrl;
+
+  // アプリが開かなかった場合は約1.2秒後にブラウザ版へ。
+  fallbackTimer=setTimeout(()=>{
+    if(!appOpened){
+      window.open(browserUrl,'_blank','noopener,noreferrer');
+    }
+  },1200);
 });
 $('copy').addEventListener('click',async()=>{
   try{
